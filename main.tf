@@ -1,5 +1,5 @@
 provider "aws" {
-    region = "us-east-2"
+    region = var.aws_region
   
 }
 data "aws_availability_zones"  "working" {}
@@ -16,7 +16,7 @@ data "aws_ami" "latest_amazon_linux" {
 resource "aws_security_group" "web" {
   name        = "web security group"
   dynamic "ingress" {
-    for_each = ["80", "443"]
+    for_each = var.port_list
     content {
         description      = "web SG"
         from_port        = ingress.value
@@ -44,7 +44,7 @@ resource "aws_security_group" "web" {
 resource "aws_launch_configuration" "web" {
   name_prefix   = "WebSerer-Highly-Available-LC-"
   image_id      = data.aws_ami.latest_amazon_linux.id
-  instance_type = "t2.micro"
+  instance_type = var.instance_size
   security_groups = [aws_security_group.web.id]
   user_data = file("user_data.sh")
 
